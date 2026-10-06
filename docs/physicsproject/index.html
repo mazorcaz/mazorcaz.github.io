@@ -4,8 +4,111 @@
 <html>
 <head>
 	<title>mazorcaz physicsproject</title>
+	<style>
+	canvas#c {
+		position: absolute;
+		left:0px;
+		top: 0px;
+		width: 100vw;
+		height: 100vh;
+	}
+	div#overlay {
+		position: absolute;
+		left: 0px;
+		top: 0px;
+		width: 100vw;
+		height: 100vh;
+	}
+	div.mode {
+		padding: 10px;
+	}
+	div.topleft {
+		position: absolute;
+		left: 0px;
+		top: 0px;
+	}
+	div.topright {
+		position: absolute;
+		right: 0px;
+		top: 0px;
+	}
+	div.full {
+		position: absolute;
+		right: 0px;
+		left: 0px;
+		top: 0px;
+		bottom: 0px;
+	}
+	</style>
 </head>
 <body>
-	Lorem ipsum dolor sit amet
+	<h1>Physics project</h1>
+	<p>This is a simulation that shows how the earth and the solar system are perfectly tuned for life</p>
+	<button onclick="activate()">Start</button>
+	<br><br>
+	<a href="/">back</a>
+
+	<canvas id="c" style="display:none"></canvas>
+	<div id="overlay" style="display:none">
+		<div class="topleft mode mode-start">
+			<button onclick="document.location.href = document.location.href">Exit</button>
+		</div>
+		<div class="topright mode mode-run">
+			<h2 style="color: red">b</h2>
+		</div>
+	</div>
+
+	<script>
+	let c = document.getElementById('c');
+	let o = document.getElementById('overlay');
+	let ctx = c.getContext('2d');
+
+	let thing = {};
+
+	function reset() {
+		c.style.display = 'block';
+		o.style.display = 'block';
+		
+		thing.modes = {};
+		thing.modes.start = {bg: 'black'};
+
+		setMode('start');
+	}
+
+	function setMode(mode) {
+		let all = document.getElementsByClassName('mode');
+		for (let i=0; i<all.length; i++) {
+			all[i].style.display = 'none';
+		}
+		thing.mode = mode;
+		let els = document.getElementsByClassName('mode-' + mode);
+		for (let i=0; i<els.length; i++) {
+			els[i].style.display = 'block';
+		}
+	}
+
+	function resize() {
+		c.width = window.innerWidth;
+		c.height = window.innerHeight;
+	}
+	window.addEventListener('resize', resize);
+
+	function activate() {
+		reset();
+		resize();
+		update();
+	}
+
+	function update() {
+		render();
+		requestAnimationFrame(update);
+	}
+
+	function render() {
+		let mode = thing.modes[thing.mode];
+		ctx.fillStyle = mode.bg;
+		ctx.fillRect(0, 0, c.width, c.height);
+	}
+	</script>
 </body>
 </html>
