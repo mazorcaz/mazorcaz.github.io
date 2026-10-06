@@ -20,6 +20,7 @@
 		height: 100vh;
 	}
 	div.mode {
+		color: white;
 		padding: 10px;
 	}
 	div.topleft {
@@ -50,11 +51,24 @@
 
 	<canvas id="c" style="display:none"></canvas>
 	<div id="overlay" style="display:none">
+		<div class="full mode mode-start">
+			<div class="full" style="display: flex; justify-content: center; align-items: center; flex-direction: column">
+				<h1>Earth Variables Simulator</h1>
+				<p>This program simulates the results of slight<br>
+				changes in the earth's environment.</p>
+				<button style="font-size: 2em" onclick="setMode('run')">Start Simulation</button>
+			</div>
+		</div>
 		<div class="topleft mode mode-start">
 			<button onclick="document.location.href = document.location.href">Exit</button>
 		</div>
 		<div class="topright mode mode-run">
-			<h2 style="color: red">b</h2>
+			<div style="display: flex; justify-content: left; align-items: center; flex-direction: column">
+				<label for="distance">Distance From Earth</labe> <input type="range" id="distance"></input>
+			</div>
+		</div>
+		<div class="topleft mode mode-run">
+			<button onclick="setMode('start');">Back</button>
 		</div>
 	</div>
 
@@ -70,7 +84,8 @@
 		o.style.display = 'block';
 		
 		thing.modes = {};
-		thing.modes.start = {bg: 'black'};
+		thing.modes.start = {};
+		thing.modes.run = {};
 
 		setMode('start');
 	}
@@ -106,7 +121,7 @@
 
 	function render() {
 		let mode = thing.modes[thing.mode];
-		ctx.fillStyle = mode.bg;
+		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, c.width, c.height);
 	}
 	</script>
