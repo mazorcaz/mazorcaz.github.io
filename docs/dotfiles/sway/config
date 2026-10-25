@@ -1,7 +1,7 @@
 # mazorcaz sway config
 #
 # required install:
-# foot wofi swayidle swaylock wlsunset brightnessctl wireplumber
+# foot wofi grim slurp wl-clipboard swayidle swaylock wlsunset brightnessctl wireplumber
 #
 # set up manually:
 # ~/.config/sway/status.sh # specific for your computer and preferences
@@ -192,6 +192,9 @@ bindsym $mod+Shift+d exec systemctl hibernate
 # password utility (https://github.com/mazorcaz/slpg)
 bindsym $mod+p exec swaygetpass
 
+# screenshot
+bindsym $mod+Shift+p exec grim -g "$(slurp)" - | wl-copy 
+
 # wl-sunset
 bindsym $mod+n exec wlsunset -s 00:00 -S 00:00 -t 4000
 bindsym $mod+Shift+n exec pkill wlsunset
@@ -215,5 +218,7 @@ exec_always {
 }
 
 ####################
-# device dependent #
+# system dependent #
 ####################
+
+include ~/.config/sway/system
