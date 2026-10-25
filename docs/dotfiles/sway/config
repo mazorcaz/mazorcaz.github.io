@@ -146,16 +146,16 @@ bindsym $mod+r mode "resize"
 ##############
 
 bar {
-    position top
+	position top
 
-    # newline = update
-    status_command ~/.config/sway/status.sh
+	# newline = update
+	status_command ~/.config/sway/status.sh
 
-    colors {
-        statusline #ffffff
-        background #323232
-        inactive_workspace #32323200 #32323200 #5c5c5c
-    }
+	colors {
+		statusline #ffffff
+		background #323232
+		inactive_workspace #32323200 #32323200 #5c5c5c
+	}
 }
 
 ######################
@@ -165,6 +165,12 @@ bar {
 # disable caps lock since it sucks
 input type:keyboard {
 	xkb_options "caps:none"
+}
+
+# disable mouse pointer accel since it messes with aim in games
+input type:pointer {
+	accel_profile flat
+	pointer_accel 0.0
 }
 
 #############
