@@ -1,0 +1,213 @@
+# mazorcaz sway config
+#
+# required install:
+# foot wofi swayidle swaylock wlsunset brightnessctl wireplumber
+#
+# set up manually:
+# ~/.config/sway/status.sh # specific for your computer and preferences
+# slpg and swaygetpass # if you use https://github.com/mazorcaz/slpg
+
+#############
+# variables #
+#############
+
+set $mod Mod4
+set $left h
+set $down j
+set $up k
+set $right l
+set $term foot
+set $menu wofi --show drun
+
+##########
+# basics #
+##########
+
+# open terminal
+bindsym $mod+Return exec $term
+
+# kill window
+bindsym $mod+Shift+q kill
+
+# open launcher menu
+bindsym $mod+d exec $menu
+
+# $mod + mouse drag behavior
+floating_modifier $mod normal
+
+# reload config
+bindsym $mod+Shift+c reload
+
+# exit
+bindsym $mod+Shift+e exit
+
+#################
+# moving around #
+#################
+
+# move focus
+bindsym $mod+$left focus left
+bindsym $mod+$down focus down
+bindsym $mod+$up focus up
+bindsym $mod+$right focus right
+
+# move window
+bindsym $mod+Shift+$left move left
+bindsym $mod+Shift+$down move down
+bindsym $mod+Shift+$up move up
+bindsym $mod+Shift+$right move right
+
+##############
+# workspaces #
+##############
+
+# switch to workspace
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+5 workspace number 5
+bindsym $mod+6 workspace number 6
+bindsym $mod+7 workspace number 7
+bindsym $mod+8 workspace number 8
+bindsym $mod+9 workspace number 9
+bindsym $mod+0 workspace number 10
+
+# move window to workspace
+bindsym $mod+Shift+1 move container to workspace number 1
+bindsym $mod+Shift+2 move container to workspace number 2
+bindsym $mod+Shift+3 move container to workspace number 3
+bindsym $mod+Shift+4 move container to workspace number 4
+bindsym $mod+Shift+5 move container to workspace number 5
+bindsym $mod+Shift+6 move container to workspace number 6
+bindsym $mod+Shift+7 move container to workspace number 7
+bindsym $mod+Shift+8 move container to workspace number 8
+bindsym $mod+Shift+9 move container to workspace number 9
+bindsym $mod+Shift+0 move container to workspace number 10
+
+##########
+# layout #
+##########
+
+# set split direction
+bindsym $mod+b splith
+bindsym $mod+v splitv
+
+# switch layout style
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+
+# fullscreen
+bindsym $mod+f fullscreen
+
+# switch between tiling and floating
+bindsym $mod+Shift+space floating toggle
+
+# swap focus with tiling and floating
+bindsym $mod+space focus mode_toggle
+
+# move focus to parent/child
+bindsym $mod+a focus parent
+bindsym $mod+c focus child
+
+##############
+# scratchpad #
+##############
+
+# send to scratchpad
+bindsym $mod+Shift+minus move scratchpad
+
+# cycle scratchpads and show/hide
+bindsym $mod+minus scratchpad show
+
+###########
+# reszing #
+###########
+
+mode "resize" {
+    # left: shrink width
+    # right: grow width
+    # up: shrink height
+    # down: grow height
+    bindsym $left resize shrink width 10px
+    bindsym $down resize grow height 10px
+    bindsym $up resize shrink height 10px
+    bindsym $right resize grow width 10px
+
+    # leave mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+
+##############
+# status bar #
+##############
+
+bar {
+    position top
+
+    # newline = update
+    status_command ~/.config/sway/status.sh
+
+    colors {
+        statusline #ffffff
+        background #323232
+        inactive_workspace #32323200 #32323200 #5c5c5c
+    }
+}
+
+######################
+# inputs and outputs #
+######################
+
+# disable caps lock since it sucks
+input type:keyboard {
+	xkb_options "caps:none"
+}
+
+#############
+# utilities #
+#############
+
+# swayidle config
+exec swayidle -w before-sleep 'swaylock -f -c 000000'
+
+# lock screen
+bindsym $mod+z exec swaylock -c 000000
+
+# suspend
+bindsym $mod+Shift+s exec systemctl suspend
+
+# hibernate
+bindsym $mod+Shift+d exec systemctl hibernate
+
+# password utility (https://github.com/mazorcaz/slpg)
+bindsym $mod+p exec swaygetpass
+
+# wl-sunset
+bindsym $mod+n exec wlsunset -s 00:00 -S 00:00 -t 4000
+bindsym $mod+Shift+n exec pkill wlsunset
+
+# brightness
+bindsym $mod+bracketleft exec brightnessctl set 10%- -e -n 10%
+bindsym $mod+bracketright exec brightnessctl set +10% -e -n 10%
+
+# sound
+bindsym $mod+Up exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+
+bindsym $mod+Down exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+bindsym $mod+o exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+
+# mic
+bindsym $mod+i exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+
+# dark theme
+exec_always {
+    gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
+    gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+}
+
+####################
+# device dependent #
+####################
