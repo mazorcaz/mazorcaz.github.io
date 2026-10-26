@@ -177,17 +177,14 @@ input type:pointer {
 # utilities #
 #############
 
-# swayidle config
-exec swayidle -w before-sleep 'swaylock -f -c 000000'
-
 # lock screen
 bindsym $mod+z exec swaylock -c 000000
 
 # suspend
-bindsym $mod+Shift+s exec systemctl suspend
+bindsym $mod+Shift+s exec swaylock -t -c 000000 & systemctl suspend
 
 # hibernate
-bindsym $mod+Shift+d exec systemctl hibernate
+bindsym $mod+Shift+d exec swaylock -t -c 000000 & systemctl hibernate
 
 # password utility (https://github.com/mazorcaz/slpg)
 bindsym $mod+p exec swaygetpass
