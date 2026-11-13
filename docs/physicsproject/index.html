@@ -87,14 +87,21 @@
 		o.style.display = 'block';
 
 		thing.inputs = {};
+
+		thing.images = {};
+		['earth', 'sun'].forEach(name => {
+			let img = new Image();
+			img.src = name + '.png';
+			thing.images[name] = img;
+		});
 		
 		thing.modes = {};
 		thing.modes.start = {};
 		thing.modes.run = {};
 		thing.modes.run.sun = {
-			x: 0.3,
+			x: 0.4,
 			y: 0,
-			r: 0.05,
+			r: 0.08,
 			xx() {
 				return thing.render.mult * this.x;
 			},
@@ -105,17 +112,13 @@
 				return thing.render.mult * this.r;
 			},
 			draw() {
-				ctx.beginPath();
-				ctx.arc(this.xx(), this.yy(), this.rr(), 0, 2 * Math.PI);
-				ctx.closePath();
-				ctx.fillStyle = 'orange';
-				ctx.fill();
+				ctx.drawImage(thing.images.sun, this.xx() - this.rr(), this.yy() - this.rr(), this.rr() * 2, this.rr() * 2);
 			}
 		};
 		thing.modes.run.earth = {
-			x: 0.3,
+			x: 0.4,
 			y: 0,
-			r: 0.02,
+			r: 0.04,
 			angle: 0,
 			xx() {
 				return (this.x + thing.inputs.earthOrbit/149*0.2 * Math.cos(this.angle)) * thing.render.mult;
@@ -130,11 +133,7 @@
 				this.angle += 1 * thing.update.ds;
 			},
 			draw() {
-				ctx.beginPath();
-				ctx.arc(this.xx(), this.yy(), this.rr(), 0, 2 * Math.PI);
-				ctx.closePath();
-				ctx.fillStyle = 'cyan';
-				ctx.fill();
+				ctx.drawImage(thing.images.earth, this.xx() - this.rr(), this.yy() - this.rr(), this.rr() * 2, this.rr() * 2);
 			}
 		}
 	
