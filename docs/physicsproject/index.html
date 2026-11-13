@@ -64,9 +64,16 @@
 		</div>
 		<div class="topright mode mode-run">
 			<div style="display: flex; justify-content: left; align-items: center; flex-direction: column">
-				<label>Earth orbit (million km)</labe>
-				<input type="range" min="50" max="200" class="input-earthOrbit" oninput="setInput('earthOrbit', this.value)"></input>
-				<input type="number" min="50" max="200" class="input-earthOrbit" oninput="setInput('earthOrbit', this.value)"></input>
+				<div>
+					<label>Earth orbit (million km)</label>
+					<input type="range" min="10" max="500" class="input-earthOrbit" oninput="setInput('earthOrbit', this.value)"></input>
+					<input type="number" min="10" max="500" class="input-earthOrbit" oninput="setInput('earthOrbit', this.value)"></input>
+				</div>
+				<div>
+					<label>Earth radius (km)</label>
+					<input type="range" min="500" max="20000" class="input-earthRadius" oninput="setInput('earthRadius', this.value)"></input>
+					<input type="number" min="500" max="20000" class="input-earthRadius" oninput="setInput'earthRadius', this.value)"></input>
+				</div>
 			</div>
 		</div>
 		<div class="topleft mode mode-run">
@@ -118,16 +125,15 @@
 		thing.modes.run.earth = {
 			x: 0.4,
 			y: 0,
-			r: 0.04,
 			angle: 0,
 			xx() {
-				return (this.x + thing.inputs.earthOrbit/149*0.2 * Math.cos(this.angle)) * thing.render.mult;
+				return thing.modes.run.sun.xx() + (thing.modes.run.sun.rr() + this.rr() + thing.inputs.earthOrbit/149*0.1*thing.render.mult) * Math.cos(this.angle);
 			},
 			yy() {
-				return thing.render.hh / 2 + (this.y + thing.inputs.earthOrbit/149*0.2 * Math.sin(this.angle)) * thing.render.mult;
+				return thing.modes.run.sun.yy() + (thing.modes.run.sun.rr() + this.rr() + thing.inputs.earthOrbit/149*0.1*thing.render.mult) * Math.sin(this.angle);
 			},
 			rr() {
-				return thing.render.mult * this.r;
+				return thing.render.mult * thing.inputs.earthRadius / 6378 * 0.04
 			},
 			update() {
 				this.angle += 1 * thing.update.ds;
@@ -147,6 +153,7 @@
 
 	function resetInputs() {
 		setInput('earthOrbit', 149);
+		setInput('earthRadius', 6371);
 	}
 
 	function setInput(name, value) {
