@@ -64,11 +64,14 @@
 		</div>
 		<div class="topright mode mode-run">
 			<div style="display: flex; justify-content: left; align-items: center; flex-direction: column">
-				<label for="distance">Distance From Earth</labe> <input type="range" id="distance"></input>
+				<label>Earth orbit (million km)</labe>
+				<input type="range" min="50" max="200" class="input-earthOrbit" oninput="setInput('earthOrbit', this.value)"></input>
+				<input type="number" min="50" max="200" class="input-earthOrbit" oninput="setInput('earthOrbit', this.value)"></input>
 			</div>
 		</div>
 		<div class="topleft mode mode-run">
 			<button onclick="setMode('start');">Back</button>
+			<button onclick="resetInputs();">Reset</button>
 		</div>
 	</div>
 
@@ -82,12 +85,77 @@
 	function reset() {
 		c.style.display = 'block';
 		o.style.display = 'block';
+
+		thing.inputs = {};
 		
 		thing.modes = {};
 		thing.modes.start = {};
 		thing.modes.run = {};
+		thing.modes.run.sun = {
+			x: 0.3,
+			y: 0,
+			r: 0.05,
+			xx() {
+				return thing.render.mult * this.x;
+			},
+			yy() {
+				return thing.render.hh / 2 + this.y * thing.render.mult;
+			},
+			rr() {
+				return thing.render.mult * this.r;
+			},
+			draw() {
+				ctx.beginPath();
+				ctx.arc(this.xx(), this.yy(), this.rr(), 0, 2 * Math.PI);
+				ctx.closePath();
+				ctx.fillStyle = 'orange';
+				ctx.fill();
+			}
+		};
+		thing.modes.run.earth = {
+			x: 0.3,
+			y: 0,
+			r: 0.02,
+			angle: 0,
+			xx() {
+				return (this.x + thing.inputs.earthOrbit/149*0.2 * Math.cos(this.angle)) * thing.render.mult;
+			},
+			yy() {
+				return thing.render.hh / 2 + (this.y + thing.inputs.earthOrbit/149*0.2 * Math.sin(this.angle)) * thing.render.mult;
+			},
+			rr() {
+				return thing.render.mult * this.r;
+			},
+			update() {
+				this.angle += 1 * thing.update.ds;
+			},
+			draw() {
+				ctx.beginPath();
+				ctx.arc(this.xx(), this.yy(), this.rr(), 0, 2 * Math.PI);
+				ctx.closePath();
+				ctx.fillStyle = 'cyan';
+				ctx.fill();
+			}
+		}
+	
+		thing.render = {};
+		thing.update = {lt: Date.now()};
+
+		resetInputs();
 
 		setMode('start');
+	}
+
+	function resetInputs() {
+		setInput('earthOrbit', 149);
+	}
+
+	function setInput(name, value) {
+		thing.inputs[name] = value;
+		let els = document.getElementsByClassName('input-' + name);
+		for (let i=0; i<els.length; i++) {
+			els[i].value = value;
+		}
 	}
 
 	function setMode(mode) {
@@ -115,15 +183,46 @@
 	}
 
 	function update() {
+		// constants
+		let ct = Date.now();
+		thing.update.dt = ct - thing.update.lt;
+		thing.update.ds = thing.update.dt / 1000;
+		thing.update.lt = ct;
+
+		// update
+		let mode = thing.modes[thing.mode];
+		if (thing.mode == 'run') {
+			mode.earth.update();
+		}
+
+		// render
 		render();
+
+		// loop
 		requestAnimationFrame(update);
 	}
 
 	function render() {
+		// calculate constants
+		thing.render.ww = window.innerWidth;
+		thing.render.hh = window.innerHeight;
+		thing.render.mult = Math.min(thing.render.ww, thing.render.hh);
+
+		// clear
 		let mode = thing.modes[thing.mode];
 		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, c.width, c.height);
+
+		if (thing.mode == 'run') {
+			mode.sun.draw();
+			mode.earth.draw();
+		}
 	}
+
+	///////////////////////
+	// UTILITY FUNCTIONS //
+	///////////////////////
+
 	</script>
 </body>
 </html>
