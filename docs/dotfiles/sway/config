@@ -7,6 +7,13 @@
 # ~/.config/sway/status.sh # specific for your computer and preferences
 # slpg and swaygetpass # if you use https://github.com/mazorcaz/slpg
 
+#################
+# session setup #
+#################
+
+exec systemctl --user import-environment WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP SWAYSOCK
+exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+
 #############
 # variables #
 #############
