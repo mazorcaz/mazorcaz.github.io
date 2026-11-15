@@ -64,11 +64,21 @@
 		</div>
 		<div class="topright mode mode-run">
 			<div style="display: flex; justify-content: left; align-items: center; flex-direction: column">
-				<label for="distance">Distance From Earth</labe> <input type="range" id="distance"></input>
+				<div>
+					<label>Earth orbit (million km)</label>
+					<input type="range" min="10" max="500" class="input-earthOrbit" oninput="setInput('earthOrbit', this.value)"></input>
+					<input type="number" min="10" max="500" class="input-earthOrbit" oninput="setInput('earthOrbit', this.value)"></input>
+				</div>
+				<div>
+					<label>Earth radius (km)</label>
+					<input type="range" min="500" max="20000" class="input-earthRadius" oninput="setInput('earthRadius', this.value)"></input>
+					<input type="number" min="500" max="20000" class="input-earthRadius" oninput="setInput'earthRadius', this.value)"></input>
+				</div>
 			</div>
 		</div>
 		<div class="topleft mode mode-run">
 			<button onclick="setMode('start');">Back</button>
+			<button onclick="resetInputs();">Reset</button>
 		</div>
 	</div>
 
@@ -82,12 +92,76 @@
 	function reset() {
 		c.style.display = 'block';
 		o.style.display = 'block';
+
+		thing.inputs = {};
+
+		thing.images = {};
+		['earth', 'sun'].forEach(name => {
+			let img = new Image();
+			img.src = name + '.png';
+			thing.images[name] = img;
+		});
 		
 		thing.modes = {};
 		thing.modes.start = {};
 		thing.modes.run = {};
+		thing.modes.run.sun = {
+			x: 0.4,
+			y: 0,
+			r: 0.08,
+			xx() {
+				return thing.render.mult * this.x;
+			},
+			yy() {
+				return thing.render.hh / 2 + this.y * thing.render.mult;
+			},
+			rr() {
+				return thing.render.mult * this.r;
+			},
+			draw() {
+				ctx.drawImage(thing.images.sun, this.xx() - this.rr(), this.yy() - this.rr(), this.rr() * 2, this.rr() * 2);
+			}
+		};
+		thing.modes.run.earth = {
+			x: 0.4,
+			y: 0,
+			angle: 0,
+			xx() {
+				return thing.modes.run.sun.xx() + (thing.modes.run.sun.rr() + this.rr() + thing.inputs.earthOrbit/149*0.1*thing.render.mult) * Math.cos(this.angle);
+			},
+			yy() {
+				return thing.modes.run.sun.yy() + (thing.modes.run.sun.rr() + this.rr() + thing.inputs.earthOrbit/149*0.1*thing.render.mult) * Math.sin(this.angle);
+			},
+			rr() {
+				return thing.render.mult * thing.inputs.earthRadius / 6378 * 0.04
+			},
+			update() {
+				this.angle += 1 * thing.update.ds;
+			},
+			draw() {
+				ctx.drawImage(thing.images.earth, this.xx() - this.rr(), this.yy() - this.rr(), this.rr() * 2, this.rr() * 2);
+			}
+		}
+	
+		thing.render = {};
+		thing.update = {lt: Date.now()};
+
+		resetInputs();
 
 		setMode('start');
+	}
+
+	function resetInputs() {
+		setInput('earthOrbit', 149);
+		setInput('earthRadius', 6371);
+	}
+
+	function setInput(name, value) {
+		thing.inputs[name] = value;
+		let els = document.getElementsByClassName('input-' + name);
+		for (let i=0; i<els.length; i++) {
+			els[i].value = value;
+		}
 	}
 
 	function setMode(mode) {
@@ -115,15 +189,46 @@
 	}
 
 	function update() {
+		// constants
+		let ct = Date.now();
+		thing.update.dt = ct - thing.update.lt;
+		thing.update.ds = thing.update.dt / 1000;
+		thing.update.lt = ct;
+
+		// update
+		let mode = thing.modes[thing.mode];
+		if (thing.mode == 'run') {
+			mode.earth.update();
+		}
+
+		// render
 		render();
+
+		// loop
 		requestAnimationFrame(update);
 	}
 
 	function render() {
+		// calculate constants
+		thing.render.ww = window.innerWidth;
+		thing.render.hh = window.innerHeight;
+		thing.render.mult = Math.min(thing.render.ww, thing.render.hh);
+
+		// clear
 		let mode = thing.modes[thing.mode];
 		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, c.width, c.height);
+
+		if (thing.mode == 'run') {
+			mode.sun.draw();
+			mode.earth.draw();
+		}
 	}
+
+	///////////////////////
+	// UTILITY FUNCTIONS //
+	///////////////////////
+
 	</script>
 </body>
 </html>
