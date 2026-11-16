@@ -63,17 +63,27 @@
 			<button onclick="document.location.href = document.location.href">Exit</button>
 		</div>
 		<div class="topright mode mode-run">
-			<div style="display: flex; justify-content: left; align-items: center; flex-direction: column">
-				<div>
-					<label>Earth orbit (million km)</label>
+			<div style="display: flex; align-items: flex-end; flex-direction: column">
+				<span>
+					<label>Earth distance from sun (million km)</label>
 					<input type="range" min="10" max="500" class="input-earthOrbit" oninput="setInput('earthOrbit', this.value)"></input>
 					<input type="number" min="10" max="500" class="input-earthOrbit" oninput="setInput('earthOrbit', this.value)"></input>
-				</div>
-				<div>
+				</span>
+				<span>
 					<label>Earth radius (km)</label>
 					<input type="range" min="500" max="20000" class="input-earthRadius" oninput="setInput('earthRadius', this.value)"></input>
 					<input type="number" min="500" max="20000" class="input-earthRadius" oninput="setInput'earthRadius', this.value)"></input>
-				</div>
+				</span>
+				<span>
+					<label>Earth day length (% of normal day)</label>
+					<input type="range" min="1" max="500" class="input-earthDay" oninput="setInput('earthDay', this.value)"></input>
+					<input type="number" min="1" max="500" class="input-earthDay" oninput="setInput('earthDay', this.value)"></input>
+				</span>
+				<span>
+					<label>Earth year length (% of normal year)</label>
+					<input type="range" min="1" max="500" class="input-earthYear" oninput="setInput('earthYear', this.value)"></input>
+					<input type="number" min="1" max="500" class="input-earthYear" oninput="setInput('earthYear', this.value)"></input>
+				</span>
 			</div>
 		</div>
 		<div class="topleft mode mode-run">
@@ -101,6 +111,21 @@
 			img.src = name + '.png';
 			thing.images[name] = img;
 		});
+
+		thing.videos = {};
+		[].forEach(name => {
+			let video = document.createElement('video');
+			video.src = name + '.mp4';
+			video.controls = false;
+			video.load();
+			thing.videos[name] = video;
+		});
+
+		thing.sounds = {};
+		[].forEach(name => {
+			let sound = new Audio(name + '.mp3');
+			thing.sounds[name] = sound;
+		});
 		
 		thing.modes = {};
 		thing.modes.start = {};
@@ -125,21 +150,27 @@
 		thing.modes.run.earth = {
 			x: 0.4,
 			y: 0,
-			angle: 0,
+			yearAngle: 0,
+			dayAngle: 0,
 			xx() {
-				return thing.modes.run.sun.xx() + (thing.modes.run.sun.rr() + this.rr() + thing.inputs.earthOrbit/149*0.1*thing.render.mult) * Math.cos(this.angle);
+				return thing.modes.run.sun.xx() + (thing.modes.run.sun.rr() + this.rr() + thing.inputs.earthOrbit/149*0.1*thing.render.mult) * Math.cos(this.yearAngle);
 			},
 			yy() {
-				return thing.modes.run.sun.yy() + (thing.modes.run.sun.rr() + this.rr() + thing.inputs.earthOrbit/149*0.1*thing.render.mult) * Math.sin(this.angle);
+				return thing.modes.run.sun.yy() + (thing.modes.run.sun.rr() + this.rr() + thing.inputs.earthOrbit/149*0.1*thing.render.mult) * Math.sin(this.yearAngle);
 			},
 			rr() {
 				return thing.render.mult * thing.inputs.earthRadius / 6378 * 0.04
 			},
 			update() {
-				this.angle += 1 * thing.update.ds;
+				this.yearAngle += 1 * 100 / thing.inputs.earthYear * thing.update.ds;
+				this.dayAngle += 1 * 100 / thing.inputs.earthDay * thing.update.ds;
 			},
 			draw() {
-				ctx.drawImage(thing.images.earth, this.xx() - this.rr(), this.yy() - this.rr(), this.rr() * 2, this.rr() * 2);
+				ctx.save();
+				ctx.translate(this.xx(), this.yy());
+				ctx.rotate(this.dayAngle);
+				ctx.drawImage(thing.images.earth,  -this.rr(), -this.rr(), this.rr() * 2, this.rr() * 2);
+				ctx.restore();
 			}
 		}
 	
@@ -154,6 +185,8 @@
 	function resetInputs() {
 		setInput('earthOrbit', 149);
 		setInput('earthRadius', 6371);
+		setInput('earthDay', 100);
+		setInput('earthYear', 100);
 	}
 
 	function setInput(name, value) {
@@ -225,9 +258,24 @@
 		}
 	}
 
-	///////////////////////
-	// UTILITY FUNCTIONS //
-	///////////////////////
+	function calculateEvents() {
+		let events = [];
+
+		if (thing.inputs.earthOrbit < 147) {
+			// greenhouse death
+			let time = 365 * 1500 / (148 - thing.inputs.earthOrbit) ** 2;
+			events.push({event: 'greenhouse', time: time});
+		}
+		if (thing.inputs.earthOrbit <= 90) {
+			// burn death
+			events.push({event: 'burn', time: thing.inputs.earthDay / 100});
+		}
+		let circ = thing.inputs.earthOrbit * 1000000 * 1000 * Math.PI * 2;
+		let seconds = thing.inputs.earthYear / 100 * 365 * 24 * 60 * 60;
+		let speed = circ / seconds;
+
+		return events;
+	}
 
 	</script>
 </body>
