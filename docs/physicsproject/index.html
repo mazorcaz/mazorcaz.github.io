@@ -261,6 +261,12 @@
 	function calculateEvents() {
 		let events = [];
 
+		let circ = thing.inputs.earthOrbit * 1000000 * 1000 * Math.PI * 2;
+		let seconds = thing.inputs.earthYear / 100 * 365 * 24 * 60 * 60;
+		let speed = circ / seconds;
+		let mass = 23094.657606020024 * (thing.inputs.earthRadius * 1000) ** 3;
+		let energy = speed ** 2 / 2 - (6.674e-11)*1.9891e30/(thing.inputs.earthOrbit * 1000000 * 1000);
+
 		if (thing.inputs.earthOrbit < 147) {
 			// greenhouse death
 			let time = 365 * 1500 / (148 - thing.inputs.earthOrbit) ** 2;
@@ -270,9 +276,9 @@
 			// burn death
 			events.push({event: 'burn', time: thing.inputs.earthDay / 100});
 		}
-		let circ = thing.inputs.earthOrbit * 1000000 * 1000 * Math.PI * 2;
-		let seconds = thing.inputs.earthYear / 100 * 365 * 24 * 60 * 60;
-		let speed = circ / seconds;
+		if (energy > 0) {
+			events.push({event: 'leave', time: 100});
+		}
 
 		return events;
 	}
